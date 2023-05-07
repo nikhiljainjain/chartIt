@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 const {ipcRenderer} = require('electron')
@@ -8,10 +8,17 @@ function Next() {
   const [isActive, setActive] = useState(true);
   const [buttonText, setButtonText] = useState('Fetch Data Stream');
   const [listenerCount, setCount] = useState(0);
+  const chartLoadingData = useRef([])
 
   const getData = () => {
     ipcRenderer.on("device-data",(event,packets)=>{
+      // if (listenerCount === 26) {
+      //   setCount(0)
+      //   chartLoadingData.current = []
+      // }
+
       console.log(packets)
+      packets.forEach((arr:any) => chartLoadingData.current.push(arr[0]))
       setCount(listenerCount+1)
     })
 
@@ -49,7 +56,7 @@ function Next() {
 
       <div id="chartIt"> 
       <span className='mt-4 w-full flex-wrap flex justify-center'>⚡  Render Chart Here ⚡</span> 
-      <Chart />
+      <Chart chartLoadingData={chartLoadingData.current} />
       </div> 
 
       <div className='mt-10 w-full flex-wrap flex justify-center'>
